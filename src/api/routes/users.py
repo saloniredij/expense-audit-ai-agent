@@ -10,6 +10,8 @@ from src.models.core import User
 router = APIRouter()
 user_repo = BaseRepository(User)
 
+from sqlalchemy.exc import IntegrityError
+
 @router.post("/", response_model=schemas.UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(
     *,
@@ -19,8 +21,11 @@ async def create_user(
     """
     Create new user.
     """
-    user = await user_repo.create(db=db, obj_in=user_in.model_dump())
-    return user
+    try:
+        user = await user_repo.create(db=db, obj_in=user_in.model_dump())
+        return user
+    except IntegrityError:
+        raise HTTPException(status_code=400, detail="User with this email already exists")
 
 @router.get("/{user_id}", response_model=schemas.UserResponse)
 async def read_user(

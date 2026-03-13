@@ -8,7 +8,9 @@ BASE_URL = "http://localhost:8000/v1"
 async def main():
     async with httpx.AsyncClient(base_url=BASE_URL) as client:
         print("1. Creating User...")
-        resp = await client.post("/users/", json={"email": "demo@example.com"})
+        import uuid
+        test_email = f"demo_{uuid.uuid4().hex[0:6]}@example.com"
+        resp = await client.post("/users/", json={"email": test_email})
         if resp.status_code != 201:
             print("Failed to create user:", resp.text)
             # Try to fetch if already exists (for demo purposes)
